@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1gmi2ij" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:process id="product" name="product" isExecutable="true">
+    <bpmn:startEvent id="Event_StartReadProductDescription" name="Read product description">
+      <bpmn:outgoing>Flow_0bisqpe</bpmn:outgoing>
+      <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_164o2t9" camunda:variableName="etat">
+        <bpmn:condition xsi:type="bpmn:tFormalExpression">#{etat== "read"}</bpmn:condition>
+      </bpmn:conditionalEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0bisqpe" sourceRef="Event_StartReadProductDescription" targetRef="Activity_ReadProductDescription" />
+    <bpmn:serviceTask id="Activity_ReadProductDescription" name="Read product description" camunda:class="CamundaGroup.CamundaArtifact.camunda.delegates.ReadDelegate">
+      <bpmn:incoming>Flow_0bisqpe</bpmn:incoming>
+      <bpmn:incoming>Flow_1909qag</bpmn:incoming>
+      <bpmn:incoming>Flow_12z7c8s</bpmn:incoming>
+      <bpmn:outgoing>Flow_1svbs09</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="Event_OpenProductPage" name="Open product page">
+      <bpmn:outgoing>Flow_08hwv9w</bpmn:outgoing>
+      <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_1k95p5h" camunda:variableName="etat">
+        <bpmn:condition xsi:type="bpmn:tFormalExpression">#{etat== "open"}</bpmn:condition>
+      </bpmn:conditionalEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_OpenProductPage" name="Open product page" camunda:class="CamundaGroup.CamundaArtifact.camunda.delegates.OpenDelegate">
+      <bpmn:incoming>Flow_08hwv9w</bpmn:incoming>
+      <bpmn:incoming>Flow_0pen90i</bpmn:incoming>
+      <bpmn:incoming>Flow_0w9jigk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0o79yxe</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_08hwv9w" sourceRef="Event_OpenProductPage" targetRef="Activity_OpenProductPage" />
+    <bpmn:serviceTask id="Activity_AddToBag" name="Add to bag" camunda:class="CamundaGroup.CamundaArtifact.camunda.delegates.AddDelegate">
+      <bpmn:incoming>Flow_0c9x1az</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hj6oxg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1svbs09" sourceRef="Activity_ReadProductDescription" targetRef="Activity_WaitOpenProductPage" />
+    <bpmn:userTask id="Activity_WaitOpenProductPage" name="Read description">
+      <bpmn:incoming>Flow_1svbs09</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pen90i</bpmn:outgoing>
+      <bpmn:outgoing>Flow_12z7c8s</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0pen90i" sourceRef="Activity_WaitOpenProductPage" targetRef="Activity_OpenProductPage">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "open"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="Activity_WaitAddToBage" name="Open page">
+      <bpmn:incoming>Flow_0o79yxe</bpmn:incoming>
+      <bpmn:outgoing>Flow_0c9x1az</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1jvoj97</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0o79yxe" sourceRef="Activity_OpenProductPage" targetRef="Activity_WaitAddToBage" />
+    <bpmn:sequenceFlow id="Flow_0c9x1az" sourceRef="Activity_WaitAddToBage" targetRef="Activity_AddToBag">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "add"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1jvoj97" sourceRef="Activity_WaitAddToBage" targetRef="Gateway_1vlpbhm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "open" or etat== "read"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="Activity_WaitBuy" name="Added to bag">
+      <bpmn:incoming>Flow_0hj6oxg</bpmn:incoming>
+      <bpmn:incoming>Flow_0kkbosx</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bzcbgs</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1fagg1e</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1vcgx1z</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0hj6oxg" sourceRef="Activity_AddToBag" targetRef="Activity_WaitBuy" />
+    <bpmn:serviceTask id="Activity_RemoveFromBag" name="Remove from bag" camunda:class="CamundaGroup.CamundaArtifact.camunda.delegates.RemoveDelegate">
+      <bpmn:incoming>Flow_1n29zls</bpmn:incoming>
+      <bpmn:outgoing>Flow_12mshjw</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1909qag" sourceRef="Gateway_1vlpbhm" targetRef="Activity_ReadProductDescription">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "read"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_12z7c8s" sourceRef="Activity_WaitOpenProductPage" targetRef="Activity_ReadProductDescription">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "read"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_Buy" name="Buy" camunda:class="CamundaGroup.CamundaArtifact.camunda.delegates.BuyDelegate">
+      <bpmn:incoming>Flow_1azqec9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pnhqel</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_EndWithPurchase" name="End with purchase">
+      <bpmn:incoming>Flow_1pnhqel</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1pnhqel" sourceRef="Activity_Buy" targetRef="Event_EndWithPurchase" />
+    <bpmn:sequenceFlow id="Flow_1bzcbgs" sourceRef="Activity_WaitBuy" targetRef="Gateway_010n5bz">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "buy" or etat== "remove"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1fagg1e" sourceRef="Activity_WaitBuy" targetRef="Gateway_1vlpbhm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "open" or etat== "read"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0w9jigk" sourceRef="Gateway_1vlpbhm" targetRef="Activity_OpenProductPage">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "open"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_010n5bz">
+      <bpmn:incoming>Flow_1bzcbgs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1azqec9</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1n29zls</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1azqec9" sourceRef="Gateway_010n5bz" targetRef="Activity_Buy">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "buy"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1n29zls" sourceRef="Gateway_010n5bz" targetRef="Activity_RemoveFromBag">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "remove"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0kkbosx" sourceRef="Activity_ChangeQuantity" targetRef="Activity_WaitBuy" />
+    <bpmn:sequenceFlow id="Flow_1vcgx1z" sourceRef="Activity_WaitBuy" targetRef="Activity_ChangeQuantity">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{etat== "quantity"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_EndWithoutPurchase" name="End without purchase">
+      <bpmn:incoming>Flow_12mshjw</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_12mshjw" sourceRef="Activity_RemoveFromBag" targetRef="Event_EndWithoutPurchase" />
+    <bpmn:serviceTask id="Activity_ChangeQuantity" name="Change quantity" camunda:class="CamundaGroup.CamundaArtifact.camunda.delegates.QuantityDelegate">
+      <bpmn:incoming>Flow_1vcgx1z</bpmn:incoming>
+      <bpmn:outgoing>Flow_0kkbosx</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_1vlpbhm">
+      <bpmn:incoming>Flow_1jvoj97</bpmn:incoming>
+      <bpmn:incoming>Flow_1fagg1e</bpmn:incoming>
+      <bpmn:outgoing>Flow_1909qag</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0w9jigk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="product">
+      <bpmndi:BPMNEdge id="Flow_12mshjw_di" bpmnElement="Flow_12mshjw">
+        <di:waypoint x="1370" y="550" />
+        <di:waypoint x="1462" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vcgx1z_di" bpmnElement="Flow_1vcgx1z">
+        <di:waypoint x="990" y="380" />
+        <di:waypoint x="990" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kkbosx_di" bpmnElement="Flow_0kkbosx">
+        <di:waypoint x="950" y="170" />
+        <di:waypoint x="950" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n29zls_di" bpmnElement="Flow_1n29zls">
+        <di:waypoint x="1120" y="445" />
+        <di:waypoint x="1120" y="550" />
+        <di:waypoint x="1270" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1azqec9_di" bpmnElement="Flow_1azqec9">
+        <di:waypoint x="1120" y="395" />
+        <di:waypoint x="1120" y="280" />
+        <di:waypoint x="1270" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0w9jigk_di" bpmnElement="Flow_0w9jigk">
+        <di:waypoint x="645" y="640" />
+        <di:waypoint x="520" y="640" />
+        <di:waypoint x="520" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fagg1e_di" bpmnElement="Flow_1fagg1e">
+        <di:waypoint x="970" y="460" />
+        <di:waypoint x="970" y="640" />
+        <di:waypoint x="695" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bzcbgs_di" bpmnElement="Flow_1bzcbgs">
+        <di:waypoint x="1020" y="420" />
+        <di:waypoint x="1095" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pnhqel_di" bpmnElement="Flow_1pnhqel">
+        <di:waypoint x="1370" y="280" />
+        <di:waypoint x="1462" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12z7c8s_di" bpmnElement="Flow_12z7c8s">
+        <di:waypoint x="320" y="440" />
+        <di:waypoint x="260" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1909qag_di" bpmnElement="Flow_1909qag">
+        <di:waypoint x="670" y="665" />
+        <di:waypoint x="670" y="740" />
+        <di:waypoint x="210" y="740" />
+        <di:waypoint x="210" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hj6oxg_di" bpmnElement="Flow_0hj6oxg">
+        <di:waypoint x="870" y="420" />
+        <di:waypoint x="920" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jvoj97_di" bpmnElement="Flow_1jvoj97">
+        <di:waypoint x="670" y="460" />
+        <di:waypoint x="670" y="615" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0c9x1az_di" bpmnElement="Flow_0c9x1az">
+        <di:waypoint x="720" y="420" />
+        <di:waypoint x="770" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o79yxe_di" bpmnElement="Flow_0o79yxe">
+        <di:waypoint x="570" y="420" />
+        <di:waypoint x="620" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pen90i_di" bpmnElement="Flow_0pen90i">
+        <di:waypoint x="420" y="420" />
+        <di:waypoint x="470" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1svbs09_di" bpmnElement="Flow_1svbs09">
+        <di:waypoint x="260" y="400" />
+        <di:waypoint x="320" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08hwv9w_di" bpmnElement="Flow_08hwv9w">
+        <di:waypoint x="520" y="148" />
+        <di:waypoint x="520" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bisqpe_di" bpmnElement="Flow_0bisqpe">
+        <di:waypoint x="210" y="148" />
+        <di:waypoint x="210" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_14n0jjz_di" bpmnElement="Event_StartReadProductDescription" bioc:stroke="#1e88e5" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#1e88e5">
+        <dc:Bounds x="192" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="179" y="82" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10lbv2t_di" bpmnElement="Activity_ReadProductDescription" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00">
+        <dc:Bounds x="160" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0pnz7a8" bpmnElement="Event_OpenProductPage" bioc:stroke="#1e88e5" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#1e88e5">
+        <dc:Bounds x="502" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="489" y="82" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0emavqo" bpmnElement="Activity_OpenProductPage" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00">
+        <dc:Bounds x="470" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_08apq8w" bpmnElement="Activity_AddToBag" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00">
+        <dc:Bounds x="770" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zcpgz8_di" bpmnElement="Activity_WaitOpenProductPage" bioc:stroke="#43a047" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#43a047">
+        <dc:Bounds x="320" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1q798xr" bpmnElement="Activity_WaitAddToBage" bioc:stroke="#43a047" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#43a047">
+        <dc:Bounds x="620" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_01qkq21" bpmnElement="Activity_WaitBuy" bioc:stroke="#43a047" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#43a047">
+        <dc:Bounds x="920" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0zlgdtx" bpmnElement="Activity_RemoveFromBag" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00">
+        <dc:Bounds x="1270" y="510" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1502nr1" bpmnElement="Activity_Buy" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00">
+        <dc:Bounds x="1270" y="240" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1cye6xl_di" bpmnElement="Event_EndWithPurchase" bioc:stroke="#e53935" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#e53935">
+        <dc:Bounds x="1462" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1460" y="305" width="46" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_010n5bz_di" bpmnElement="Gateway_010n5bz" isMarkerVisible="true" bioc:stroke="#8e24aa" bioc:fill="#e1bee7" color:background-color="#e1bee7" color:border-color="#8e24aa">
+        <dc:Bounds x="1095" y="395" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0w6ooiz_di" bpmnElement="Event_EndWithoutPurchase" bioc:stroke="#e53935" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#e53935">
+        <dc:Bounds x="1462" y="532" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1452" y="575" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0wd4pqk_di" bpmnElement="Activity_ChangeQuantity" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00">
+        <dc:Bounds x="920" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_02k8chs_di" bpmnElement="Gateway_1vlpbhm" isMarkerVisible="true" bioc:stroke="#8e24aa" bioc:fill="#e1bee7" color:background-color="#e1bee7" color:border-color="#8e24aa">
+        <dc:Bounds x="645" y="615" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

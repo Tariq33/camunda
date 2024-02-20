@@ -1,0 +1,13 @@
+<div class="content" role="main">
+  <div *ngFor="let product of products">
+    <mat-expansion-panel class="column">
+      <mat-expansion-panel-header>
+        <mat-panel-title (click)="process('read', product.id)">
+          {{product.name}}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <p>{{product.description}}</p>
+      <p (click)="redirectProduct('open', product.id)"><a href="javascript:void(0)">Ouvrir</a></p>
+    </mat-expansion-panel>
+  </div>
+</div>

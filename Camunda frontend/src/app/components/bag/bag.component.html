@@ -1,0 +1,11 @@
+<div *ngFor="let product of products">
+  <p>{{product.name}}</p>
+  <p>{{product.price}} €</p>
+  <p><a href="javascript:void(0)" (click)="removeToBag(product)">Remove to bag</a></p>
+
+
+</div>
+
+<h1>Total : {{total}} €</h1>
+
+<h2><a href="javascript:void(0)" (click)="acheter()">Buy all</a></h2>

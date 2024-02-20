@@ -1,0 +1,32 @@
+#
+# @author Tariq Farud
+# @date 27/10/2022
+# @project Camunda
+#
+  spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/camunda
+    username: postgres
+    password: admin
+
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  liquibase:
+    change-log: /liquibase/master.xml
+
+camunda:
+  bpm:
+    admin-user:
+      id: demo
+      password: demo
+      firstName: Demo
+    filter:
+      create: All tasks
+    deployment-resource-pattern: classpath:/camunda/*.bpmn
