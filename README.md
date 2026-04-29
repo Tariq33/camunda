@@ -1,92 +1,123 @@
-# Camunda
+# Camunda — démo e-commerce et processus BPMN
 
-Point technique du vendredi sur Camunda
+Application de démonstration illustrant l’intégration de **Camunda Platform 7** avec **Spring Boot** : un parcours utilisateur type boutique (consulter une fiche, panier, achat) est piloté par un processus BPMN, tandis qu’une interface **Angular** appelle l’API REST du backend.
 
-## Getting started
+Projet issu d’un point technique (démo pédagogique).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Sommaire
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- [Architecture](#architecture)
+- [Prérequis](#prérequis)
+- [Base de données](#base-de-données)
+- [Démarrage du backend](#démarrage-du-backend)
+- [Démarrage du frontend](#démarrage-du-frontend)
+- [API REST](#api-rest)
+- [Camunda (Cockpit / Tasklist)](#camunda-cockpit--tasklist)
+- [Structure du dépôt](#structure-du-dépôt)
 
-## Add your files
+## Architecture
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+| Composant | Rôle |
+|-----------|------|
+| **Camunda backend** | Spring Boot 2.7, Java 11, JPA, **PostgreSQL**, **Liquibase**, déploiement du modèle `product.bpmn` et délégués Java |
+| **Camunda frontend** | Angular 13 + Angular Material, consommation de l’API sur `http://localhost:8080` |
+| **Processus `product`** | Événements conditionnels sur la variable `etat` (`read`, `open`, `add`, achat, retrait du panier, etc.) et tâches utilisateur / service tasks |
+
+Le backend expose l’application Camunda embarquée (webapps) en plus de l’API métier.
+
+## Prérequis
+
+- **JDK 11**
+- **Maven** (ou utilisation du wrapper `mvnw` / `mvnw.cmd` fourni dans le backend)
+- **Node.js** et **npm** (versions compatibles avec Angular CLI 13)
+- **PostgreSQL** avec une base créée pour l’application (voir ci-dessous)
+
+## Base de données
+
+1. Créez une base PostgreSQL (par défaut le projet attend une base nommée `camunda` sur `localhost:5432`).
+2. Ajustez si besoin les identifiants dans `Camunda backend/src/main/resources/application.yml` :
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/camunda
+    username: postgres
+    password: admin
+```
+
+Les schémas applicatifs et les données initiales (par ex. produits) sont gérés via **Liquibase** (`src/main/resources/liquibase/`).
+
+## Démarrage du backend
+
+Depuis le dossier `Camunda backend` :
+
+```bash
+./mvnw spring-boot:run
+```
+
+Sous Windows :
+
+```cmd
+mvnw.cmd spring-boot:run
+```
+
+L’API REST écoute par défaut sur le port **8080** (port Spring Boot par défaut).
+
+## Démarrage du frontend
+
+Depuis le dossier `Camunda frontend` :
+
+```bash
+npm install
+npm start
+```
+
+Par défaut, `ng serve` sert l’application en développement (souvent **http://localhost:4200**). Les appels HTTP pointent vers `http://localhost:8080` (voir `src/app/service/product.service.ts`).
+
+## API REST
+
+Préfixe : `/product` (CORS ouvert sur toutes les origines côté backend).
+
+| Méthode | Chemin | Description |
+|---------|--------|-------------|
+| `GET` | `/product` | Liste des produits |
+| `GET` | `/product/{id}` | Détail d’un produit |
+| `POST` | `/product/process` | Corps JSON `ProductProcessDto` : démarre ou fait avancer l’instance de processus Camunda liée à l’utilisateur et au produit (clé métier `userId` + `productId`) |
+
+Le corps `POST /product/process` contient notamment `userId`, `productId`, `etat` et `quantity`, alignés sur les variables et conditions du BPMN.
+
+## Camunda (Cockpit / Tasklist)
+
+Après démarrage du backend, les webapps Camunda sont généralement accessibles sous :
+
+**http://localhost:8080/camunda/**
+
+Compte administrateur configuré dans `application.yml` :
+
+- **Identifiant :** `demo`
+- **Mot de passe :** `demo`
+
+Vous pouvez y suivre les instances du processus `product`, les tâches et les variables d’exécution.
+
+## Structure du dépôt
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/ssg33/camunda.git
-git branch -M main
-git push -uf origin main
+camunda-main/
+├── Camunda backend/          # Spring Boot + Camunda + JPA + Liquibase
+│   └── src/main/
+│       ├── java/...           # REST, services, délégués Camunda
+│       └── resources/
+│           ├── application.yml
+│           ├── camunda/product.bpmn
+│           └── liquibase/
+└── Camunda frontend/         # Angular (IHM démo)
+    └── src/app/              # composants, services, modèles
 ```
 
-## Integrate with your tools
+## Auteur
 
-- [ ] [Set up project integrations](https://gitlab.com/ssg33/camunda/-/settings/integrations)
+Démo décrite dans le `pom.xml` : **Tariq Farud** (projet Camunda / `CamundaArtifact`).
 
-## Collaborate with your team
+---
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+*Pour un dépôt distant GitLab, vous pouvez lier ce dépôt avec `git remote add origin` et la branche `main` selon votre hébergeur.*
